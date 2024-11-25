@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小鹿12岁生日快乐！</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f06, #9f6);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            padding: 15px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .birthday-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+            width: calc(100% - 20px);
+        }
+
+        .cake {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .cake:hover {
+            transform: scale(1.1);
+        }
+
+        h1 {
+            color: #ff1493;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .message {
+            margin: 30px 0;
+            line-height: 1.6;
+        }
+
+        .message p {
+            margin: 10px 0;
+            color: #666;
+        }
+
+        .balloons {
+            font-size: 3em;
+            margin-top: 20px;
+            animation: float 3s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        @media screen and (max-width: 480px) {
+            .container { padding: 10px; }
+            .birthday-card { padding: 15px; }
+            .cake { font-size: 3.5em; }
+            h1 { font-size: 1.8em; }
+            .message { 
+                font-size: 1em;
+                margin: 20px 0;
+            }
+            .message p { margin: 8px 0; }
+            .balloons { font-size: 2em; }
+        }
+
+        @media screen and (max-width: 320px) {
+            .cake { font-size: 3em; }
+            h1 { font-size: 1.5em; }
+            .message { font-size: 0.9em; }
+        }
+
+        .gift-box {
+            font-size: 3em;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+
+        .gift-box:hover {
+            transform: scale(1.1);
+        }
+
+        .heart {
+            position: fixed;
+            font-size: 20px;
+            user-select: none;
+            cursor: default;
+            animation: heartFloat 2s forwards;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .surprise-text {
+            font-size: 1.2em;
+            color: #ff69b4;
+            margin-top: 20px;
+            min-height: 60px;
+        }
+
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .floating-wishes {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .wish {
+            position: absolute;
+            color: #fff;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            animation: floatAnimation 12s linear;
+            opacity: 0;
+        }
+        
+        @keyframes floatAnimation {
+            0% {
+                transform: translate(100vw, 0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-100%, 0);
+                opacity: 0;
+            }
+        }
+    </style>
+    <audio id="bgMusic" loop>
+        <source src="birthday.mp3" type="audio/mpeg">
+        <!-- 如果是其他格式的音频文件，请相应修改 type -->
+    </audio>
+</head>
+<body>
+    <div class="music-control">🎵</div>
+    <div class="container">
+        <div class="birthday-card">
+            <div class="cake" id="cake">
+                🎂
+            </div>
+            <h1>小鹿12岁生日快乐！</h1>
+            <div class="message">
+                <p class="typing"></p>
+                <p class="hidden">12岁是一个充满魔力的年龄</p>
+                <p class="hidden">愿你像小鹿一样活泼可爱、健康成长</p>
+            </div>
+            <div class="balloons">
+                🎈🎈🎈
+            </div>
+            <div class="gift-box" id="gift">🎁</div>
+            <div class="surprise-text"></div>
+        </div>
+    </div>
+
+    <div class="floating-wishes" id="floating-wishes"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const audio = document.getElementById('bgMusic');
+            let isPlaying = false;
+
+            // 尝试自动播放
+            const playAudio = () => {
+                audio.play().then(() => {
+                    isPlaying = true;
+                }).catch(err => {
+                    console.log('需要用户交互才能播放音乐');
+                });
+            };
+
+            // 监听页面点击事件来播放音乐
+            document.body.addEventListener('click', () => {
+                if (!isPlaying) {
+                    playAudio();
+                }
+            }, { once: true });
+
+            // 音乐控制按钮
+            document.querySelector('.music-control').addEventListener('click', () => {
+                if (isPlaying) {
+                    audio.pause();
+                    isPlaying = false;
+                } else {
+                    audio.play();
+                    isPlaying = true;
+                }
+            });
+
+            // 打字机效果
+            const text = "亲爱的小鹿，祝你12岁生日快乐！";
+            const typingElement = document.querySelector('.typing');
+            let index = 0;
+
+            function typeText() {
+                if (index < text.length) {
+                    typingElement.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(typeText, 100);
+                } else {
+                    document.querySelectorAll('.hidden').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                }
+            }
+            typeText();
+
+            // 点击蛋糕效果
+            document.getElementById('cake').addEventListener('click', () => {
+                createHearts(event);
+                audio.play();
+                isPlaying = true;
+            });
+
+            // 点击礼物盒效果
+            const allWishes = [
+                "亲爱的小鹿鹿，愿你永远保持这份可爱与活力 🦌",
+                "祝我们的小可爱像星星一样闪闪发亮 ⭐",
+                "愿你的零花钱像竹子一样疯狂增长 💰",
+                "祝小鹿的成绩像火箭一样蹭蹭往上冲 🚀",
+                
+                "愿你的快乐像肚子里的零食一样源源不断 🍫",
+                "祝你的智商和身高一样，都在飞速上涨中 📏",
+                "愿你的作业像变魔术一样自己完成（做梦真好！）✨",
+                "祝你每天都能睡够觉，熊猫眼快快消失 🐼",
+                
+                "愿你永远像小鹿一样灵动可爱，永远不变成大恐龙 🦕",
+                "祝你的烦恼都变成搞笑的回忆 😝",
+                "愿你的考试都像选择题一样简单 A✏️",
+                "祝你的游戏技术和学习成绩一样棒 🎮",
+                
+                "愿你的小脑袋能装下所有知识（和零食）🧠",
+                "祝你每天都能开心玩耍，轻松学习 📝",
+                "愿你的生活像网速一样快，没有任何卡顿 ⚡",
+                "祝你的朋友缘比表情包还要多 👭",
+                
+                "愿你永远保持这么可爱，但要记得乖乖听话哦 😊",
+                "祝你的记性超好，只记住开心的事 🤪",
+                "愿你的生活比老师的课还要精彩 📖",
+                "祝你的笑容永远比表情包还要可爱 😘",
+                
+                "愿你的成长像春天的花儿一样绚丽 🌸",
+                "祝你每天都像吃到糖果一样开心 🍬",
+                "愿你的生活比追剧还要精彩刺激 🎬",
+                "祝你的运气比抽卡还要好（要记得省钱哦）🎲",
+                
+                "愿你永远是我们最可爱的开心果 🌟",
+                "祝你的梦想和我们的友情一样坚固 🤝",
+                "愿你的每一天都像放假一样快乐 🌈",
+                "祝小鹿永远活泼可爱，聪明伶俐 🦌"
+            ];
+            let surpriseIndex = 0;
+
+            document.getElementById('gift').addEventListener('click', (e) => {
+                const surpriseText = document.querySelector('.surprise-text');
+                surpriseText.textContent = allWishes[surpriseIndex];
+                surpriseIndex = (surpriseIndex + 1) % allWishes.length;
+                createHearts(e);
+            });
+
+            // 创建爱心效果
+            function createHearts(e) {
+                const hearts = ['❤️', '💖', '💝', '💕', '💗'];
+                for (let i = 0; i < 5; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.style.left = (e.clientX - 10) + 'px';
+                    heart.style.top = (e.clientY - 10) + 'px';
+                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => {
+                        document.body.removeChild(heart);
+                    }, 2000);
+                }
+            }
+
+            // 漂浮的表情
+            const floatingEmojis = ['🎈', '🎈', '🎁', '🎉', '✨', '🌟', '🎊', '🌸', '💫', '⭐', '🌺', '🍬', '🎀', '🧸'];
+            const colorPalette = [
+                '#FFB6C1', // 浅粉红
+                '#87CEEB', // 天蓝色
+                '#98FB98', // 浅绿色
+                '#DDA0DD', // 梅红色
+                '#F0E68C', // 卡其色
+                '#FF69B4', // 热粉红
+                '#87CEFA', // 浅天蓝
+                '#FFA07A', // 浅鲑鱼色
+                '#FFC0CB', // 粉红
+                '#FFD700'  // 金色
+            ];
+
+            setInterval(() => {
+                const balloon = document.createElement('div');
+                balloon.style.position = 'fixed';
+                balloon.style.left = Math.random() * 100 + 'vw';
+                balloon.style.bottom = '-20px';
+                balloon.style.fontSize = isMobile ? '1.5em' : '2em';
+                balloon.textContent = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
+                balloon.style.animation = 'floatUp 4s linear forwards';
+                document.body.appendChild(balloon);
+                
+                setTimeout(() => {
+                    document.body.removeChild(balloon);
+                }, 4000);
+            }, isMobile ? 3000 : 2000);
+
+            function createFloatingWish() {
+                const container = document.getElementById('floating-wishes');
+                const wish = document.createElement('div');
+                wish.className = 'wish';
+                wish.textContent = allWishes[Math.floor(Math.random() * allWishes.length)];
+                
+                // 随机生成垂直位置
+                const randomTop = Math.random() * 80 + 10; // 10% 到 90% 之间
+                wish.style.top = `${randomTop}vh`;
+                
+                // 随机字体大小
+                const randomSize = Math.random() * 10 + 20; // 20px 到 30px 之间
+                wish.style.fontSize = `${randomSize}px`;
+                
+                // 随机颜色
+                const colors = ['#ff69b4', '#ff1493', '#ff69b4', '#ffffff', '#ffd700'];
+                wish.style.color = colors[Math.floor(Math.random() * colors.length)];
+                
+                container.appendChild(wish);
+                
+                wish.addEventListener('animationend', () => {
+                    container.removeChild(wish);
+                });
+            }
+            
+            // 调整生成频率，每1.5秒生成一个新的祝福语
+            setInterval(createFloatingWish, 1500);
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                to {
+                    transform: translateY(-100vh) rotate(${Math.random() * 360}deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 
